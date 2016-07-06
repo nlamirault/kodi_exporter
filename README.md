@@ -44,10 +44,37 @@ Then launch the Prometheus exporter :
 
         $ make test
 
+
+## Local Deployment
+
+* Launch Prometheus using the configuration file in this repository:
+
+        $ prometheus -config.file=prometheus.yml
+
+* Launch exporter:
+
+        $ kodi_exporter -log.level=debug -kodi.server http://192.168.1.10:8080/jsonrpc
+
+* Check that Prometheus find the exporter on `http://localhost:9090/targets`
+
+
 ## Contributing
 
 See [CONTRIBUTING](CONTRIBUTING.md).
 
+Some Kodi API calls :
+
+* Artists:
+
+        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetArtists","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
+
+* Albums:
+
+        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetAlbums","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
+
+* Songs:
+
+        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetSongs","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
 
 ## License
 
