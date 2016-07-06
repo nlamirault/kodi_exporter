@@ -120,3 +120,25 @@ func (k *Client) AudioGetSongs() (*AudioGetSongsResponse, error) {
 		Params:  params}, resp)
 	return resp, err
 }
+
+func (k *Client) VideoGetMovies() (*VideoGetMoviesResponse, error) {
+	resp := &VideoGetMoviesResponse{}
+	params := map[string]interface{}{}
+	err := k.RPC(&Request{
+		Jsonrpc: "2.0",
+		Method:  "VideoLibrary.GetMovies",
+		Id:      1,
+		Params:  params}, resp)
+	return resp, err
+}
+
+func (k *Client) VideoGetTVShows() (*VideoGetTVShowsResponse, error) {
+	resp := &VideoGetTVShowsResponse{}
+	params := map[string]interface{}{}
+	err := k.RPC(&Request{
+		Jsonrpc: "2.0",
+		Method:  "VideoLibrary.GetTVShows",
+		Id:      1,
+		Params:  params}, resp)
+	return resp, err
+}

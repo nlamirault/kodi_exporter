@@ -54,6 +54,16 @@ var (
 		"How many songs are in the audio library.",
 		nil, nil,
 	)
+	movieCount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "video_movies"),
+		"How many movies are in the video library.",
+		nil, nil,
+	)
+	tvshowCount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "video_tvshows"),
+		"How many TV shows are in the video library.",
+		nil, nil,
+	)
 )
 
 // Exporter collects Kodi stats from the given server and exports them using
@@ -155,39 +165,29 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		log.Infof("Songs: %d", size)
 	}
 
-	// 	ch <- prometheus.MustNewConstMetric(
-	// 		clusterServers, prometheus.GaugeValue, float64(len(peers)),
-	// 	)
+	moviesResp, err := e.Client.VideoGetMovies()
+	if err != nil || moviesResp.Error != nil {
+		// FIXME: How should we handle a partial failure like this?
+	} else {
+		//size := float64(len(moviesResp.Result.Movies))
+		size := float64(moviesResp.Result.Limits.Total)
+		ch <- prometheus.MustNewConstMetric(
+			movieCount, prometheus.GaugeValue, size,
+		)
+		log.Infof("Movies: %d", size)
+	}
 
-	// 	// How many nodes are registered?
-	// 	nodes, _, err := e.client.Catalog().Nodes(&consul_api.QueryOptions{})
-	// 	if err != nil {
-	// 		// FIXME: How should we handle a partial failure like this?
-	// 	} else {
-	// 		ch <- prometheus.MustNewConstMetric(
-	// 			nodeCount, prometheus.GaugeValue, float64(len(nodes)),
-	// 		)
-	// 	}
-
-	// 	// Query for the full list of services.
-	// 	serviceNames, _, err := e.client.Catalog().Services(&consul_api.QueryOptions{})
-	// 	if err != nil {
-	// 		// FIXME: How should we handle a partial failure like this?
-	// 		return
-	// 	}
-	// 	ch <- prometheus.MustNewConstMetric(
-	// 		serviceCount, prometheus.GaugeValue, float64(len(serviceNames)),
-	// 	)
-
-	// 	if e.healthSummary {
-	// 		e.collectHealthSummary(ch, serviceNames)
-	// 	}
-
-	// 	checks, _, err := e.client.Health().State("any", &consul_api.QueryOptions{})
-	// 	if err != nil {
-	// 		log.Errorf("Failed to query service health: %v", err)
-	// 		return
-	// 	}
+	tvshowsResp, err := e.Client.VideoGetTVShows()
+	if err != nil || tvshowsResp.Error != nil {
+		// FIXME: How should we handle a partial failure like this?
+	} else {
+		//size := float64(len(tvshowsResp.Result.Movies))
+		size := float64(tvshowsResp.Result.Limits.Total)
+		ch <- prometheus.MustNewConstMetric(
+			tvshowCount, prometheus.GaugeValue, size,
+		)
+		log.Infof("TV Shows: %d", size)
+	}
 
 	// 	for _, hc := range checks {
 	// 		var passing float64

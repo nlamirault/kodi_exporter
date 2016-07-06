@@ -54,10 +54,14 @@ type ListLimitsReturned struct {
 
 // type Result string
 
+// GUI
+
 type ShowNotificationResponse struct {
 	ResponseBase
 	Result string `json:"result,omitempty"`
 }
+
+// Audio Library
 
 type Artist struct {
 	Artist   string `json:"artist,omitempty"`
@@ -103,4 +107,36 @@ type SongsResponse struct {
 type AudioGetSongsResponse struct {
 	ResponseBase
 	Result SongsResponse `json:"result,omitempty"`
+}
+
+// Video Library
+
+type TVShow struct {
+	TVShowID int    `json:"tvshowid"`
+	Label    string `json:"label,omitempty"`
+}
+
+type TVShowsResponse struct {
+	TVShows []TVShow            `json:"tvshows,omitempty"`
+	Limits  *ListLimitsReturned `json:"limits,omitempty"`
+}
+
+type VideoGetTVShowsResponse struct {
+	ResponseBase
+	Result TVShowsResponse `json:"result,omitempty"`
+}
+
+type Movie struct {
+	MovieID int    `json:"movieid"`
+	Label   string `json:"label,omitempty"`
+}
+
+type MoviessResponse struct {
+	Movies []Movie             `json:"movies,omitempty"`
+	Limits *ListLimitsReturned `json:"limits,omitempty"`
+}
+
+type VideoGetMoviesResponse struct {
+	ResponseBase
+	Result TVShowsResponse `json:"result,omitempty"`
 }
