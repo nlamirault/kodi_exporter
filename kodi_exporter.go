@@ -129,6 +129,11 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		up, prometheus.GaugeValue, 1,
 	)
 
+	e.collectAudioMetrics(ch)
+	e.collectVideoMetrics(ch)
+}
+
+func (e *Exporter) collectAudioMetrics(ch chan<- prometheus.Metric) {
 	artistsResp, err := e.Client.AudioGetArtists()
 	if err != nil || artistsResp.Error != nil {
 		// FIXME: How should we handle a partial failure like this?
@@ -148,7 +153,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		//size := float64(len(albumsResp.Result.Albums))
 		size := float64(albumsResp.Result.Limits.Total)
 		ch <- prometheus.MustNewConstMetric(
-			artistCount, prometheus.GaugeValue, size,
+			albumCount, prometheus.GaugeValue, size,
 		)
 		log.Infof("Albums: %d", size)
 	}
@@ -160,11 +165,13 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		//size := float64(len(songsResp.Result.Songs))
 		size := float64(songsResp.Result.Limits.Total)
 		ch <- prometheus.MustNewConstMetric(
-			artistCount, prometheus.GaugeValue, size,
+			songCount, prometheus.GaugeValue, size,
 		)
 		log.Infof("Songs: %d", size)
 	}
+}
 
+func (e *Exporter) collectVideoMetrics(ch chan<- prometheus.Metric) {
 	moviesResp, err := e.Client.VideoGetMovies()
 	if err != nil || moviesResp.Error != nil {
 		// FIXME: How should we handle a partial failure like this?
