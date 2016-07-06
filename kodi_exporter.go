@@ -195,77 +195,7 @@ func (e *Exporter) collectVideoMetrics(ch chan<- prometheus.Metric) {
 		)
 		log.Infof("TV Shows: %d", size)
 	}
-
-	// 	for _, hc := range checks {
-	// 		var passing float64
-	// 		if hc.Status == consul.HealthPassing {
-	// 			passing = 1
-	// 		}
-	// 		if hc.ServiceID == "" {
-	// 			ch <- prometheus.MustNewConstMetric(
-	// 				nodeChecks, prometheus.GaugeValue, passing, hc.CheckID, hc.Node,
-	// 			)
-	// 		} else {
-	// 			ch <- prometheus.MustNewConstMetric(
-	// 				serviceChecks, prometheus.GaugeValue, passing, hc.CheckID, hc.Node, hc.ServiceID,
-	// 			)
-	// 		}
-	// 	}
-
-	// 	e.collectKeyValues(ch)
 }
-
-// collectHealthSummary collects health information about every node+service
-// combination. It will cause one lookup query per service.
-// func (e *Exporter) collectHealthSummary(ch chan<- prometheus.Metric, serviceNames map[string][]string) {
-// 	for s := range serviceNames {
-// 		service, _, err := e.client.Health().Service(s, "", false, &consul_api.QueryOptions{})
-// 		if err != nil {
-// 			log.Errorf("Failed to query service health: %v", err)
-// 			continue
-// 		}
-
-// 		for _, entry := range service {
-// 			// We have a Node, a Service, and one or more Checks. Our
-// 			// service-node combo is passing if all checks have a `status`
-// 			// of "passing."
-// 			passing := 1.
-// 			for _, hc := range entry.Checks {
-// 				if hc.Status != consul.HealthPassing {
-// 					passing = 0
-// 					break
-// 				}
-// 			}
-// 			ch <- prometheus.MustNewConstMetric(
-// 				serviceNodesHealthy, prometheus.GaugeValue, passing, entry.Service.ID, entry.Node.Node,
-// 			)
-// 		}
-// 	}
-// }
-
-// func (e *Exporter) collectKeyValues(ch chan<- prometheus.Metric) {
-// 	if e.kvPrefix == "" {
-// 		return
-// 	}
-
-// 	kv := e.client.KV()
-// 	pairs, _, err := kv.List(e.kvPrefix, &consul_api.QueryOptions{})
-// 	if err != nil {
-// 		log.Errorf("Error fetching key/values: %s", err)
-// 		return
-// 	}
-
-// 	for _, pair := range pairs {
-// 		if e.kvFilter.MatchString(pair.Key) {
-// 			val, err := strconv.ParseFloat(string(pair.Value), 64)
-// 			if err == nil {
-// 				ch <- prometheus.MustNewConstMetric(
-// 					keyValues, prometheus.GaugeValue, val, pair.Key,
-// 				)
-// 			}
-// 		}
-// 	}
-// }
 
 func init() {
 	prometheus.MustRegister(prom_version.NewCollector("kodi_exporter"))
