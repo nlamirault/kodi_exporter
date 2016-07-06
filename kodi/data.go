@@ -46,9 +46,61 @@ type ResponseBase struct {
 	Error   *ResponseError `json:"error,omitempty"`
 }
 
+type ListLimitsReturned struct {
+	Total int `json:"total"`
+	Start int `json:"start,omitempty"`
+	End   int `json:"end,omitempty"`
+}
+
 // type Result string
 
 type ShowNotificationResponse struct {
 	ResponseBase
 	Result string `json:"result,omitempty"`
+}
+
+type Artist struct {
+	Artist   string `json:"artist,omitempty"`
+	ArtistID int    `json:"artistid"`
+	Label    string `json:"label,omitempty"`
+}
+
+type ArtistsResponse struct {
+	Artists []Artist            `json:"artists,omitempty"`
+	Limits  *ListLimitsReturned `json:"limits,omitempty"`
+}
+
+type AudioGetArtistsResponse struct {
+	ResponseBase
+	Result ArtistsResponse `json:"result,omitempty"`
+}
+
+type Album struct {
+	AlbumID int    `json:"albumid"`
+	Label   string `json:"label,omitempty"`
+}
+
+type AlbumsResponse struct {
+	Albums []Album             `json:"albums,omitempty"`
+	Limits *ListLimitsReturned `json:"limits,omitempty"`
+}
+
+type AudioGetAlbumsResponse struct {
+	ResponseBase
+	Result AlbumsResponse `json:"result,omitempty"`
+}
+
+type Song struct {
+	SongID int    `json:"songid"`
+	Label  string `json:"label,omitempty"`
+}
+
+type SongsResponse struct {
+	Songs  []Song              `json:"songs,omitempty"`
+	Limits *ListLimitsReturned `json:"limits,omitempty"`
+}
+
+type AudioGetSongsResponse struct {
+	ResponseBase
+	Result SongsResponse `json:"result,omitempty"`
 }

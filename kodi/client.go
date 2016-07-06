@@ -70,5 +70,53 @@ func (k *Client) RPC(request interface{}, response interface{}) error {
 	log.Debugf("KODI Json : %v\n", string(b))
 	dec := json.NewDecoder(bytes.NewBuffer(b))
 	err = dec.Decode(response)
+	// log.Debugf("KODI entity : %v\n", response)
 	return err
+}
+
+func (k *Client) ShowNotification(title string, message string) (*ShowNotificationResponse, error) {
+	resp := &ShowNotificationResponse{}
+	params := map[string]interface{}{
+		`title`:   title,
+		`message`: message,
+	}
+	err := k.RPC(&Request{
+		Jsonrpc: "2.0",
+		Method:  "GUI.ShowNotification",
+		Id:      1,
+		Params:  params}, resp)
+	return resp, err
+}
+
+func (k *Client) AudioGetArtists() (*AudioGetArtistsResponse, error) {
+	resp := &AudioGetArtistsResponse{}
+	params := map[string]interface{}{}
+	err := k.RPC(&Request{
+		Jsonrpc: "2.0",
+		Method:  "AudioLibrary.GetArtists",
+		Id:      1,
+		Params:  params}, resp)
+	return resp, err
+}
+
+func (k *Client) AudioGetAlbums() (*AudioGetAlbumsResponse, error) {
+	resp := &AudioGetAlbumsResponse{}
+	params := map[string]interface{}{}
+	err := k.RPC(&Request{
+		Jsonrpc: "2.0",
+		Method:  "AudioLibrary.GetAlbums",
+		Id:      1,
+		Params:  params}, resp)
+	return resp, err
+}
+
+func (k *Client) AudioGetSongs() (*AudioGetSongsResponse, error) {
+	resp := &AudioGetSongsResponse{}
+	params := map[string]interface{}{}
+	err := k.RPC(&Request{
+		Jsonrpc: "2.0",
+		Method:  "AudioLibrary.GetSongs",
+		Id:      1,
+		Params:  params}, resp)
+	return resp, err
 }

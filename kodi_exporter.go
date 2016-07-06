@@ -39,9 +39,24 @@ var (
 		"Was the last query of Kodi successful.",
 		nil, nil,
 	)
+	artistCount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "audio_artists"),
+		"How many artists are in the audio library.",
+		nil, nil,
+	)
+	albumCount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "audio_albums"),
+		"How many albums are in the audio library.",
+		nil, nil,
+	)
+	songCount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "audio_songs"),
+		"How many songs are in the audio library.",
+		nil, nil,
+	)
 )
 
-// Exporter collects Consul stats from the given server and exports them using
+// Exporter collects Kodi stats from the given server and exports them using
 // the prometheus metrics package.
 type Exporter struct {
 	URI    string
@@ -52,20 +67,12 @@ type Exporter struct {
 func NewExporter(uri string, username string, password string) (*Exporter, error) {
 	log.Infoln("Setup Kodi client")
 	client := kodi.NewClient(uri, username, password)
-	params := map[string]interface{}{
-		`title`:   `Prometheus`,
-		`message`: `Prometheus exporter for Kodi is ready`,
-	}
-	resp := &kodi.ShowNotificationResponse{}
-	err := client.RPC(&kodi.Request{
-		Jsonrpc: "2.0",
-		Method:  "GUI.ShowNotification",
-		Id:      1,
-		Params:  params}, resp)
+	resp, err := client.ShowNotification(
+		`Prometheus`, `Prometheus exporter for Kodi is ready`)
+
 	if err != nil {
 		return nil, err
 	}
-	//log.Debugf("Kodi response: %#v", resp)
 	if resp.Error != nil {
 		return nil, fmt.Errorf("%s [%d]", resp.Error.Message, resp.Error.Code)
 	}
@@ -82,6 +89,9 @@ func NewExporter(uri string, username string, password string) (*Exporter, error
 // It implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- up
+	ch <- artistCount
+	ch <- albumCount
+	ch <- songCount
 	// ch <- clusterServers
 	// ch <- nodeCount
 	// ch <- serviceCount
@@ -91,24 +101,59 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	// ch <- keyValues
 }
 
-// Collect fetches the stats from configured Consul location and delivers them
+// Collect fetches the stats from configured Kodi location and delivers them
 // as Prometheus metrics.
 // It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
-
-	// 	// How many peers are in the Consul cluster?
-	// 	peers, err := e.client.Status().Peers()
-	// 	if err != nil {
-	// 		ch <- prometheus.MustNewConstMetric(
-	// 			up, prometheus.GaugeValue, 0,
-	// 		)
-	// 		log.Errorf("Query error is %v", err)
-	// 		return
-	// 	}
-
+	resp, err := e.Client.ShowNotification(
+		`Prometheus`, `kodi exporter is starting `)
+	if err != nil || resp.Error != nil {
+		ch <- prometheus.MustNewConstMetric(
+			up, prometheus.GaugeValue, 0,
+		)
+		log.Errorf("%s [%d]", resp.Error.Message, resp.Error.Code)
+		return
+	}
+	log.Infof("Kodi up")
 	ch <- prometheus.MustNewConstMetric(
 		up, prometheus.GaugeValue, 1,
 	)
+
+	artistsResp, err := e.Client.AudioGetArtists()
+	if err != nil || artistsResp.Error != nil {
+		// FIXME: How should we handle a partial failure like this?
+	} else {
+		//size := float64(len(artistsResp.Result.Artists))
+		size := float64(artistsResp.Result.Limits.Total)
+		ch <- prometheus.MustNewConstMetric(
+			artistCount, prometheus.GaugeValue, size,
+		)
+		log.Infof("Artists: %d", size)
+	}
+
+	albumsResp, err := e.Client.AudioGetAlbums()
+	if err != nil || albumsResp.Error != nil {
+		// FIXME: How should we handle a partial failure like this?
+	} else {
+		//size := float64(len(albumsResp.Result.Albums))
+		size := float64(albumsResp.Result.Limits.Total)
+		ch <- prometheus.MustNewConstMetric(
+			artistCount, prometheus.GaugeValue, size,
+		)
+		log.Infof("Albums: %d", size)
+	}
+
+	songsResp, err := e.Client.AudioGetSongs()
+	if err != nil || songsResp.Error != nil {
+		// FIXME: How should we handle a partial failure like this?
+	} else {
+		//size := float64(len(songsResp.Result.Songs))
+		size := float64(songsResp.Result.Limits.Total)
+		ch <- prometheus.MustNewConstMetric(
+			artistCount, prometheus.GaugeValue, size,
+		)
+		log.Infof("Songs: %d", size)
+	}
 
 	// 	ch <- prometheus.MustNewConstMetric(
 	// 		clusterServers, prometheus.GaugeValue, float64(len(peers)),
@@ -215,9 +260,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 // 	}
 // }
 
-// func init() {
-// 	prometheus.MustRegister(prom_version.NewCollector("kodi_exporter"))
-// }
+func init() {
+	prometheus.MustRegister(prom_version.NewCollector("kodi_exporter"))
+}
 
 func main() {
 	var (
@@ -232,12 +277,11 @@ func main() {
 
 	if *showVersion {
 		fmt.Printf("Kodi Prometheus exporter. v%s\n", version.Version)
-		// fmt.Fprintln(os.Stdout, version.Print("kodi_exporter"))
 		os.Exit(0)
 	}
 
 	log.Infoln("Starting kodi_exporter", prom_version.Info())
-	// log.Infoln("Build context", prom_version.BuildContext())
+	log.Infoln("Build context", prom_version.BuildContext())
 
 	exporter, err := NewExporter(*kodiServer, *kodiUsername, *kodiPassword)
 	if err != nil {
