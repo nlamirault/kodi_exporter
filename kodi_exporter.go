@@ -50,10 +50,8 @@ type Exporter struct {
 
 // NewExporter returns an initialized Exporter.
 func NewExporter(uri string, username string, password string) (*Exporter, error) {
-	// Set up our Kodi client connection.
 	log.Infoln("Setup Kodi client")
 	client := kodi.NewClient(uri, username, password)
-
 	params := map[string]interface{}{
 		`title`:   `Prometheus`,
 		`message`: `Prometheus exporter for Kodi is ready`,
@@ -67,9 +65,13 @@ func NewExporter(uri string, username string, password string) (*Exporter, error
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("Kodi connection: %s\n", resp.Result)
-	log.Infoln("Init exporter")
-	// Init our exporter.
+	//log.Debugf("Kodi response: %#v", resp)
+	if resp.Error != nil {
+		return nil, fmt.Errorf("%s [%d]", resp.Error.Message, resp.Error.Code)
+	}
+	log.Debugf("Kodi API connection: %s", resp.Result)
+
+	log.Debugln("Init exporter")
 	return &Exporter{
 		URI:    uri,
 		Client: client,
@@ -104,10 +106,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	// 		return
 	// 	}
 
-	// 	// We'll use peers to decide that we're up.
-	// 	ch <- prometheus.MustNewConstMetric(
-	// 		up, prometheus.GaugeValue, 1,
-	// 	)
+	ch <- prometheus.MustNewConstMetric(
+		up, prometheus.GaugeValue, 1,
+	)
+
 	// 	ch <- prometheus.MustNewConstMetric(
 	// 		clusterServers, prometheus.GaugeValue, float64(len(peers)),
 	// 	)
@@ -239,7 +241,7 @@ func main() {
 
 	exporter, err := NewExporter(*kodiServer, *kodiUsername, *kodiPassword)
 	if err != nil {
-		fmt.Fprintln(os.Stdout, err)
+		log.Errorf("Can't create exporter : %s", err)
 		os.Exit(1)
 	}
 	log.Infoln("Register exporter")
