@@ -1,6 +1,5 @@
 package: github.com/nlamirault/kodi_exporter
 import:
-- package: github.com/pdf/kodirpc
 - package: github.com/prometheus/client_golang
   subpackages:
   - prometheus

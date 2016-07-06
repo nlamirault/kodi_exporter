@@ -20,15 +20,12 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"os"
-	"time"
-	// "regexp"
-	// "strconv"
 
-	"github.com/pdf/kodirpc"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	prom_version "github.com/prometheus/common/version"
 
+	"github.com/nlamirault/kodi_exporter/kodi"
 	"github.com/nlamirault/kodi_exporter/version"
 )
 
@@ -48,23 +45,34 @@ var (
 // the prometheus metrics package.
 type Exporter struct {
 	URI    string
-	client *kodirpc.Client
+	Client *kodi.Client
 }
 
 // NewExporter returns an initialized Exporter.
-func NewExporter(uri string) (*Exporter, error) {
+func NewExporter(uri string, username string, password string) (*Exporter, error) {
 	// Set up our Kodi client connection.
-	config := kodirpc.NewConfig()
-	config.ReadTimeout = 2 * time.Second
-	client, err := kodirpc.NewClient(uri, config)
-	if err != nil || client == nil {
-		return nil, fmt.Errorf("Can't create Kodi client: %v", err)
-	}
+	log.Infoln("Setup Kodi client")
+	client := kodi.NewClient(uri, username, password)
 
+	params := map[string]interface{}{
+		`title`:   `Prometheus`,
+		`message`: `Prometheus exporter for Kodi is ready`,
+	}
+	resp := &kodi.ShowNotificationResponse{}
+	err := client.RPC(&kodi.Request{
+		Jsonrpc: "2.0",
+		Method:  "GUI.ShowNotification",
+		Id:      1,
+		Params:  params}, resp)
+	if err != nil {
+		return nil, err
+	}
+	log.Infof("Kodi connection: %s\n", resp.Result)
+	log.Infoln("Init exporter")
 	// Init our exporter.
 	return &Exporter{
 		URI:    uri,
-		client: client,
+		Client: client,
 	}, nil
 }
 
@@ -85,6 +93,7 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 // as Prometheus metrics.
 // It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
+
 	// 	// How many peers are in the Consul cluster?
 	// 	peers, err := e.client.Status().Peers()
 	// 	if err != nil {
@@ -204,9 +213,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 // 	}
 // }
 
-func init() {
-	prometheus.MustRegister(prom_version.NewCollector("kodi_exporter"))
-}
+// func init() {
+// 	prometheus.MustRegister(prom_version.NewCollector("kodi_exporter"))
+// }
 
 func main() {
 	var (
@@ -214,6 +223,8 @@ func main() {
 		listenAddress = flag.String("web.listen-address", ":9111", "Address to listen on for web interface and telemetry.")
 		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 		kodiServer    = flag.String("kodi.server", "localhost:9090", "HTTP API address of the Kodi server.")
+		kodiUsername  = flag.String("kodi.username", "", "Username for authentication to the Kodi server.")
+		kodiPassword  = flag.String("kodi.password", "", "Password for authentication to the Kodi server.")
 	)
 	flag.Parse()
 
@@ -224,13 +235,14 @@ func main() {
 	}
 
 	log.Infoln("Starting kodi_exporter", prom_version.Info())
-	log.Infoln("Build context", prom_version.BuildContext())
+	// log.Infoln("Build context", prom_version.BuildContext())
 
-	exporter, err := NewExporter(*kodiServer)
+	exporter, err := NewExporter(*kodiServer, *kodiUsername, *kodiPassword)
 	if err != nil {
 		fmt.Fprintln(os.Stdout, err)
 		os.Exit(1)
 	}
+	log.Infoln("Register exporter")
 	prometheus.MustRegister(exporter)
 
 	http.Handle(*metricsPath, prometheus.Handler())
