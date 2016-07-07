@@ -36,10 +36,10 @@ WARN_COLOR=\033[33;01m
 
 MAKE_COLOR=\033[33;01m%-20s\033[0m
 
-MAIN = github.com/nlamirault/abraracourcix
+MAIN = github.com/nlamirault/kodi_exporter
 SRCS = $(shell git ls-files '*.go' | grep -v '^vendor/')
 PKGS = $(shell glide novendor)
-EXE = abraracourcix
+EXE = kodi-exporter
 
 VERSION=$(shell \
         grep "const Version" version/version.go \
@@ -106,7 +106,7 @@ coverage: ## Launch code coverage
 
 gox: ## Make all binaries
 	@echo -e "$(OK_COLOR)[$(APP)] Create binaries $(NO_COLOR)"
-	$(GOX) github.com/nlamirault/abraracourcix
+	$(GOX) github.com/nlamirault/kodi_exporter
 
 .PHONY: binaries
 binaries: gox ## Upload all binaries
