@@ -64,6 +64,26 @@ var (
 		"How many TV shows are in the video library.",
 		nil, nil,
 	)
+	// movieGenres = prometheus.NewDesc(
+	// 	prometheus.BuildFQName(namespace, "", "video_movies_genres"),
+	// 	"Genres for movies in the video library.",
+	// 	nil, nil,
+	// )
+	// tvshowGenres = prometheus.NewDesc(
+	// 	prometheus.BuildFQName(namespace, "", "video_tvshows_genres"),
+	// 	"Genres for TV shows in the video library.",
+	// 	nil, nil,
+	// )
+	// movieGenres = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	// 	Namespace: namespace,
+	// 	Name:      "video_movies_genres",
+	// 	Help:      "Genres for movies in the video library.",
+	// }, []string{"label"})
+	// tvshowGenres = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	// 	Namespace: namespace,
+	// 	Name:      "video_tvshows_genres",
+	// 	Help:      "Genres for TV shows in the video library.",
+	// }, []string{"label"})
 )
 
 // Exporter collects Kodi stats from the given server and exports them using
@@ -102,19 +122,17 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- artistCount
 	ch <- albumCount
 	ch <- songCount
-	// ch <- clusterServers
-	// ch <- nodeCount
-	// ch <- serviceCount
-	// ch <- serviceNodesHealthy
-	// ch <- nodeChecks
-	// ch <- serviceChecks
-	// ch <- keyValues
+	ch <- movieCount
+	ch <- tvshowCount
+	// ch <- movieGenres
+	// ch <- tvshowGenres
 }
 
 // Collect fetches the stats from configured Kodi location and delivers them
 // as Prometheus metrics.
 // It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
+	log.Infof("Kodi exporter starting")
 	resp, err := e.Client.ShowNotification(
 		`Prometheus`, `kodi exporter is starting `)
 	if err != nil || resp.Error != nil {
@@ -124,13 +142,14 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		log.Errorf("%s [%d]", resp.Error.Message, resp.Error.Code)
 		return
 	}
-	log.Infof("Kodi up")
+	log.Infof("Connection ok")
 	ch <- prometheus.MustNewConstMetric(
 		up, prometheus.GaugeValue, 1,
 	)
 
 	e.collectAudioMetrics(ch)
 	e.collectVideoMetrics(ch)
+	log.Infof("Kodi exporter finished")
 }
 
 func (e *Exporter) collectAudioMetrics(ch chan<- prometheus.Metric) {
@@ -169,6 +188,7 @@ func (e *Exporter) collectAudioMetrics(ch chan<- prometheus.Metric) {
 		)
 		log.Infof("Songs: %d", size)
 	}
+
 }
 
 func (e *Exporter) collectVideoMetrics(ch chan<- prometheus.Metric) {
@@ -194,6 +214,21 @@ func (e *Exporter) collectVideoMetrics(ch chan<- prometheus.Metric) {
 			tvshowCount, prometheus.GaugeValue, size,
 		)
 		log.Infof("TV Shows: %d", size)
+	}
+
+	moviesGenresResp, err := e.Client.VideoGetMoviesGenres()
+	if err != nil || moviesGenresResp.Error != nil {
+		// FIXME: How should we handle a partial failure like this?
+		log.Errorf("Kodi error : %v %v", err, moviesGenresResp.Error)
+	} else {
+		log.Infof("Movies Genres: %v", moviesGenresResp.Result)
+	}
+	tvshowsGenresResp, err := e.Client.VideoGetTVShowsGenres()
+	if err != nil || tvshowsGenresResp.Error != nil {
+		// FIXME: How should we handle a partial failure like this?
+		log.Errorf("Kodi error : %v %v", err, tvshowsGenresResp.Error)
+	} else {
+		log.Infof("TV Shows Genres: %v", tvshowsGenresResp.Result)
 	}
 }
 

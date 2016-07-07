@@ -131,12 +131,27 @@ type Movie struct {
 	Label   string `json:"label,omitempty"`
 }
 
-type MoviessResponse struct {
+type MoviesResponse struct {
 	Movies []Movie             `json:"movies,omitempty"`
 	Limits *ListLimitsReturned `json:"limits,omitempty"`
 }
 
 type VideoGetMoviesResponse struct {
 	ResponseBase
-	Result TVShowsResponse `json:"result,omitempty"`
+	Result MoviesResponse `json:"result,omitempty"`
+}
+
+type Genre struct {
+	GenreID int    `json:"genreid"`
+	Label   string `json:"label,omitempty"`
+}
+
+type GenresResponse struct {
+	Genres []Genre             `json:"genres,omitempty"`
+	Limits *ListLimitsReturned `json:"limits,omitempty"`
+}
+
+type VideoGetGenresResponse struct {
+	ResponseBase
+	Result GenresResponse `json:"result,omitempty"`
 }

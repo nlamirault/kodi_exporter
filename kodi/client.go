@@ -142,3 +142,24 @@ func (k *Client) VideoGetTVShows() (*VideoGetTVShowsResponse, error) {
 		Params:  params}, resp)
 	return resp, err
 }
+
+func (k *Client) videoGetGenres(videotype string) (*VideoGetGenresResponse, error) {
+	resp := &VideoGetGenresResponse{}
+	params := map[string]interface{}{
+		`type`: videotype,
+	}
+	err := k.RPC(&Request{
+		Jsonrpc: "2.0",
+		Method:  "VideoLibrary.GetGenres",
+		Id:      1,
+		Params:  params}, resp)
+	return resp, err
+}
+
+func (k *Client) VideoGetTVShowsGenres() (*VideoGetGenresResponse, error) {
+	return k.videoGetGenres("tvshow")
+}
+
+func (k *Client) VideoGetMoviesGenres() (*VideoGetGenresResponse, error) {
+	return k.videoGetGenres("movie")
+}
