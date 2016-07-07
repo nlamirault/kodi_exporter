@@ -31,6 +31,7 @@ type Client struct {
 	Client   *http.Client
 }
 
+// NewClient defines a new client for the Kodi JSONRPC API
 func NewClient(address string, username string, password string) *Client {
 	return &Client{
 		URI:      address,
@@ -58,7 +59,7 @@ func (k *Client) performRequest(request *Request) (*http.Response, error) {
 	return response, err
 }
 
-func (k *Client) RPC(method string, params interface{}, response interface{}) error {
+func (k *Client) rpc(method string, params interface{}, response interface{}) error {
 	resp, err := k.performRequest(&Request{
 		Jsonrpc: "2.0",
 		Method:  method,
@@ -78,48 +79,54 @@ func (k *Client) RPC(method string, params interface{}, response interface{}) er
 	return err
 }
 
+// ShowNotification make a RPC call to shows a GUI notification
 func (k *Client) ShowNotification(title string, message string) (*ShowNotificationResponse, error) {
 	resp := &ShowNotificationResponse{}
 	params := map[string]interface{}{
 		`title`:   title,
 		`message`: message,
 	}
-	err := k.RPC("GUI.ShowNotification", params, resp)
+	err := k.rpc("GUI.ShowNotification", params, resp)
 	return resp, err
 }
 
+// AudioGetArtists make a RPC call to retrieve all artists
 func (k *Client) AudioGetArtists() (*AudioGetArtistsResponse, error) {
 	resp := &AudioGetArtistsResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC("AudioLibrary.GetArtists", params, resp)
+	err := k.rpc("AudioLibrary.GetArtists", params, resp)
 	return resp, err
 }
 
+// AudioGetAlbums make a RPC call to retrieve all albums
 func (k *Client) AudioGetAlbums() (*AudioGetAlbumsResponse, error) {
 	resp := &AudioGetAlbumsResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC("AudioLibrary.GetAlbums", params, resp)
+	err := k.rpc("AudioLibrary.GetAlbums", params, resp)
 	return resp, err
 }
 
+// AudioGetSongs make a RPC call to retrieve all songs
 func (k *Client) AudioGetSongs() (*AudioGetSongsResponse, error) {
 	resp := &AudioGetSongsResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC("AudioLibrary.GetSongs", params, resp)
+	err := k.rpc("AudioLibrary.GetSongs", params, resp)
 	return resp, err
 }
 
+// VideoGetMovies make a RPC call to retrieve all movies
 func (k *Client) VideoGetMovies() (*VideoGetMoviesResponse, error) {
 	resp := &VideoGetMoviesResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC("VideoLibrary.GetMovies", params, resp)
+	err := k.rpc("VideoLibrary.GetMovies", params, resp)
 	return resp, err
 }
 
+// VideoGetTVShows make a RPC call to retrieve all TV shows
 func (k *Client) VideoGetTVShows() (*VideoGetTVShowsResponse, error) {
 	resp := &VideoGetTVShowsResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC("VideoLibrary.GetTVShows", params, resp)
+	err := k.rpc("VideoLibrary.GetTVShows", params, resp)
 	return resp, err
 }
 
@@ -128,14 +135,16 @@ func (k *Client) videoGetGenres(videotype string) (*VideoGetGenresResponse, erro
 	params := map[string]interface{}{
 		`type`: videotype,
 	}
-	err := k.RPC("VideoLibrary.GetGenres", params, resp)
+	err := k.rpc("VideoLibrary.GetGenres", params, resp)
 	return resp, err
 }
 
+// VideoGetTVShowsGenres make a RPC call to retrieve all genres for TV shows
 func (k *Client) VideoGetTVShowsGenres() (*VideoGetGenresResponse, error) {
 	return k.videoGetGenres("tvshow")
 }
 
+// VideoGetMoviesGenres make a RPC call to retrieve all genres for movies
 func (k *Client) VideoGetMoviesGenres() (*VideoGetGenresResponse, error) {
 	return k.videoGetGenres("movie")
 }

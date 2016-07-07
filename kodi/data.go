@@ -14,38 +14,7 @@
 
 package kodi
 
-type Request struct {
-	Jsonrpc string      `json:"jsonrpc"`
-	Method  string      `json:"method"`
-	ID      int64       `json:"id"`
-	Params  interface{} `json:"params,omitempty"`
-}
-
-type ErrorStack struct {
-	Name     string      `json:"name,omitempty"`
-	Type     string      `json:"type,omitempty"`
-	Message  string      `json:"message,omitempty"`
-	Property *ErrorStack `json:"property,omitempty"`
-}
-
-type ErrorData struct {
-	Method string      `json:"method"`
-	Stack  *ErrorStack `json:"stack"`
-}
-
-type ResponseError struct {
-	Code    int        `json:"code"`
-	Message string     `json:"message"`
-	Data    *ErrorData `json:"data,omitempty"`
-}
-
-type ResponseBase struct {
-	Jsonrpc string         `json:"jsonrpc,omitempty"`
-	Method  string         `json:"method,omitempty"`
-	ID      int64          `json:"id,omitempty"`
-	Error   *ResponseError `json:"error,omitempty"`
-}
-
+// ListLimitsReturned define a Kodi entity for list informations
 type ListLimitsReturned struct {
 	Total int `json:"total"`
 	Start int `json:"start,omitempty"`
@@ -56,6 +25,7 @@ type ListLimitsReturned struct {
 
 // GUI
 
+// ShowNotificationResponse define a response after a ShowNotification RPC call
 type ShowNotificationResponse struct {
 	ResponseBase
 	Result string `json:"result,omitempty"`
@@ -63,17 +33,20 @@ type ShowNotificationResponse struct {
 
 // Audio Library
 
+// Artist define the Kodi artist entity
 type Artist struct {
 	Artist   string `json:"artist,omitempty"`
 	ArtistID int    `json:"artistid"`
 	Label    string `json:"label,omitempty"`
 }
 
+// ArtistsResponse define the Kodi artists list response
 type ArtistsResponse struct {
 	Artists []Artist            `json:"artists,omitempty"`
 	Limits  *ListLimitsReturned `json:"limits,omitempty"`
 }
 
+// AudioGetArtistsResponse define the response to the GetArtists RPC call
 type AudioGetArtistsResponse struct {
 	ResponseBase
 	Result ArtistsResponse `json:"result,omitempty"`
