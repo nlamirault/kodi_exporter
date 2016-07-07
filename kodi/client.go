@@ -41,7 +41,7 @@ func NewClient(address string, username string, password string) *Client {
 
 }
 
-func (k *Client) performRequest(request interface{}) (*http.Response, error) {
+func (k *Client) performRequest(request *Request) (*http.Response, error) {
 	body, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
@@ -58,8 +58,12 @@ func (k *Client) performRequest(request interface{}) (*http.Response, error) {
 	return response, err
 }
 
-func (k *Client) RPC(request interface{}, response interface{}) error {
-	resp, err := k.performRequest(request)
+func (k *Client) RPC(method string, params interface{}, response interface{}) error {
+	resp, err := k.performRequest(&Request{
+		Jsonrpc: "2.0",
+		Method:  method,
+		ID:      1,
+		Params:  params})
 	if err != nil {
 		return err
 	}
@@ -80,66 +84,42 @@ func (k *Client) ShowNotification(title string, message string) (*ShowNotificati
 		`title`:   title,
 		`message`: message,
 	}
-	err := k.RPC(&Request{
-		Jsonrpc: "2.0",
-		Method:  "GUI.ShowNotification",
-		ID:      1,
-		Params:  params}, resp)
+	err := k.RPC("GUI.ShowNotification", params, resp)
 	return resp, err
 }
 
 func (k *Client) AudioGetArtists() (*AudioGetArtistsResponse, error) {
 	resp := &AudioGetArtistsResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC(&Request{
-		Jsonrpc: "2.0",
-		Method:  "AudioLibrary.GetArtists",
-		ID:      1,
-		Params:  params}, resp)
+	err := k.RPC("AudioLibrary.GetArtists", params, resp)
 	return resp, err
 }
 
 func (k *Client) AudioGetAlbums() (*AudioGetAlbumsResponse, error) {
 	resp := &AudioGetAlbumsResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC(&Request{
-		Jsonrpc: "2.0",
-		Method:  "AudioLibrary.GetAlbums",
-		ID:      1,
-		Params:  params}, resp)
+	err := k.RPC("AudioLibrary.GetAlbums", params, resp)
 	return resp, err
 }
 
 func (k *Client) AudioGetSongs() (*AudioGetSongsResponse, error) {
 	resp := &AudioGetSongsResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC(&Request{
-		Jsonrpc: "2.0",
-		Method:  "AudioLibrary.GetSongs",
-		ID:      1,
-		Params:  params}, resp)
+	err := k.RPC("AudioLibrary.GetSongs", params, resp)
 	return resp, err
 }
 
 func (k *Client) VideoGetMovies() (*VideoGetMoviesResponse, error) {
 	resp := &VideoGetMoviesResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC(&Request{
-		Jsonrpc: "2.0",
-		Method:  "VideoLibrary.GetMovies",
-		ID:      1,
-		Params:  params}, resp)
+	err := k.RPC("VideoLibrary.GetMovies", params, resp)
 	return resp, err
 }
 
 func (k *Client) VideoGetTVShows() (*VideoGetTVShowsResponse, error) {
 	resp := &VideoGetTVShowsResponse{}
 	params := map[string]interface{}{}
-	err := k.RPC(&Request{
-		Jsonrpc: "2.0",
-		Method:  "VideoLibrary.GetTVShows",
-		ID:      1,
-		Params:  params}, resp)
+	err := k.RPC("VideoLibrary.GetTVShows", params, resp)
 	return resp, err
 }
 
@@ -148,11 +128,7 @@ func (k *Client) videoGetGenres(videotype string) (*VideoGetGenresResponse, erro
 	params := map[string]interface{}{
 		`type`: videotype,
 	}
-	err := k.RPC(&Request{
-		Jsonrpc: "2.0",
-		Method:  "VideoLibrary.GetGenres",
-		ID:      1,
-		Params:  params}, resp)
+	err := k.RPC("VideoLibrary.GetGenres", params, resp)
 	return resp, err
 }
 
