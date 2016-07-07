@@ -39,7 +39,7 @@ MAKE_COLOR=\033[33;01m%-20s\033[0m
 MAIN = github.com/nlamirault/kodi_exporter
 SRCS = $(shell git ls-files '*.go' | grep -v '^vendor/')
 PKGS = $(shell glide novendor)
-EXE = kodi-exporter
+EXE = kodi_exporter
 
 VERSION=$(shell \
         grep "const Version" version/version.go \
