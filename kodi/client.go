@@ -83,7 +83,7 @@ func (k *Client) ShowNotification(title string, message string) (*ShowNotificati
 	err := k.RPC(&Request{
 		Jsonrpc: "2.0",
 		Method:  "GUI.ShowNotification",
-		Id:      1,
+		ID:      1,
 		Params:  params}, resp)
 	return resp, err
 }
@@ -94,7 +94,7 @@ func (k *Client) AudioGetArtists() (*AudioGetArtistsResponse, error) {
 	err := k.RPC(&Request{
 		Jsonrpc: "2.0",
 		Method:  "AudioLibrary.GetArtists",
-		Id:      1,
+		ID:      1,
 		Params:  params}, resp)
 	return resp, err
 }
@@ -105,7 +105,7 @@ func (k *Client) AudioGetAlbums() (*AudioGetAlbumsResponse, error) {
 	err := k.RPC(&Request{
 		Jsonrpc: "2.0",
 		Method:  "AudioLibrary.GetAlbums",
-		Id:      1,
+		ID:      1,
 		Params:  params}, resp)
 	return resp, err
 }
@@ -116,7 +116,7 @@ func (k *Client) AudioGetSongs() (*AudioGetSongsResponse, error) {
 	err := k.RPC(&Request{
 		Jsonrpc: "2.0",
 		Method:  "AudioLibrary.GetSongs",
-		Id:      1,
+		ID:      1,
 		Params:  params}, resp)
 	return resp, err
 }
@@ -127,7 +127,7 @@ func (k *Client) VideoGetMovies() (*VideoGetMoviesResponse, error) {
 	err := k.RPC(&Request{
 		Jsonrpc: "2.0",
 		Method:  "VideoLibrary.GetMovies",
-		Id:      1,
+		ID:      1,
 		Params:  params}, resp)
 	return resp, err
 }
@@ -138,7 +138,7 @@ func (k *Client) VideoGetTVShows() (*VideoGetTVShowsResponse, error) {
 	err := k.RPC(&Request{
 		Jsonrpc: "2.0",
 		Method:  "VideoLibrary.GetTVShows",
-		Id:      1,
+		ID:      1,
 		Params:  params}, resp)
 	return resp, err
 }
@@ -151,7 +151,7 @@ func (k *Client) videoGetGenres(videotype string) (*VideoGetGenresResponse, erro
 	err := k.RPC(&Request{
 		Jsonrpc: "2.0",
 		Method:  "VideoLibrary.GetGenres",
-		Id:      1,
+		ID:      1,
 		Params:  params}, resp)
 	return resp, err
 }

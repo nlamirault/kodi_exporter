@@ -17,7 +17,7 @@ package kodi
 type Request struct {
 	Jsonrpc string      `json:"jsonrpc"`
 	Method  string      `json:"method"`
-	Id      int64       `json:"id"`
+	ID      int64       `json:"id"`
 	Params  interface{} `json:"params,omitempty"`
 }
 
