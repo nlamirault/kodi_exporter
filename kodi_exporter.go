@@ -133,8 +133,12 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 // It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	log.Infof("Kodi exporter starting")
-	resp, err := e.Client.ShowNotification(
-		`Prometheus`, `kodi exporter is starting `)
+	if e.Client == nil {
+		log.Errorf("Kodi client not configured.")
+		return
+	}
+
+	resp, err := e.Client.Ping()
 	if err != nil || resp.Error != nil {
 		ch <- prometheus.MustNewConstMetric(
 			up, prometheus.GaugeValue, 0,
@@ -142,7 +146,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		log.Errorf("%s [%d]", resp.Error.Message, resp.Error.Code)
 		return
 	}
-	log.Infof("Connection ok")
+	log.Infof("Ping: %s", resp.Result)
 	ch <- prometheus.MustNewConstMetric(
 		up, prometheus.GaugeValue, 1,
 	)
