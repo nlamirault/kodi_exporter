@@ -95,8 +95,11 @@ type Exporter struct {
 
 // NewExporter returns an initialized Exporter.
 func NewExporter(uri string, username string, password string) (*Exporter, error) {
-	log.Infoln("Setup Kodi client")
-	client := kodi.NewClient(uri, username, password)
+	log.Infoln("Setup Kodi client: %s %s", uri, username)
+	client, err := kodi.NewClient(uri, username, password)
+	if err != nil {
+		return nil, fmt.Errorf("Can't create the Kodi client: %s", err)
+	}
 	resp, err := client.ShowNotification(
 		`Prometheus`, `Prometheus exporter for Kodi is ready`)
 
@@ -106,7 +109,7 @@ func NewExporter(uri string, username string, password string) (*Exporter, error
 	if resp.Error != nil {
 		return nil, fmt.Errorf("%s [%d]", resp.Error.Message, resp.Error.Code)
 	}
-	log.Debugf("Kodi API connection: %s", resp.Result)
+	log.Infof("Kodi API connection: %s", resp.Result)
 
 	log.Debugln("Init exporter")
 	return &Exporter{
@@ -246,6 +249,7 @@ func main() {
 		listenAddress = flag.String("web.listen-address", ":9111", "Address to listen on for web interface and telemetry.")
 		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 		kodiServer    = flag.String("kodi.server", "localhost:9090", "HTTP API address of the Kodi server.")
+		kodiPort      = flag.String("kodi.port", "8080", "HTTP port the Kodi JSONRPC API.")
 		kodiUsername  = flag.String("kodi.username", "", "Username for authentication to the Kodi server.")
 		kodiPassword  = flag.String("kodi.password", "", "Password for authentication to the Kodi server.")
 	)
@@ -259,7 +263,7 @@ func main() {
 	log.Infoln("Starting kodi_exporter", prom_version.Info())
 	log.Infoln("Build context", prom_version.BuildContext())
 
-	exporter, err := NewExporter(*kodiServer, *kodiUsername, *kodiPassword)
+	exporter, err := NewExporter(fmt.Sprintf("http://%s:%s", *kodiServer, *kodiPort), *kodiUsername, *kodiPassword)
 	if err != nil {
 		log.Errorf("Can't create exporter : %s", err)
 		os.Exit(1)

@@ -28,7 +28,8 @@ Test your Kodi API using bash:
 
 Then launch the Prometheus exporter :
 
-    $ kodi_exporter -log.level=debug -kodi.server http://192.168.1.10:8080/jsonrpc
+    $ kodi_exporter -log.level=debug -kodi.server 192.168.1.10 -kodi.port 8080
+
 
 ## Development
 
@@ -53,7 +54,7 @@ Then launch the Prometheus exporter :
 
 * Launch exporter:
 
-        $ kodi_exporter -log.level=debug -kodi.server http://192.168.1.10:8080/jsonrpc
+        $ kodi_exporter -log.level=debug -kodi.server 192.168.1.10 -kodi.port 8080
 
 * Check that Prometheus find the exporter on `http://localhost:9090/targets`
 

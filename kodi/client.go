@@ -17,8 +17,10 @@ package kodi
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/prometheus/common/log"
 )
@@ -32,34 +34,39 @@ type Client struct {
 }
 
 // NewClient defines a new client for the Kodi JSONRPC API
-func NewClient(address string, username string, password string) *Client {
+func NewClient(address string, username string, password string) (*Client, error) {
+	url, err := url.Parse(fmt.Sprintf("%s/jsonrpc", address))
+	if err != nil || url.Scheme != "http" {
+		return nil, fmt.Errorf("Invalid Kodi address: %s", err)
+	}
 	return &Client{
-		URI:      address,
+		URI:      url.String(),
 		Username: username,
 		Password: password,
 		Client:   &http.Client{},
-	}
+	}, nil
 
 }
 
 func (k *Client) performRequest(request *Request) (*http.Response, error) {
 	body, err := json.Marshal(request)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Can't encode request: %s", err)
 	}
 	log.Debugf("Kodi Request : %v\n", string(body))
 
 	req, err := http.NewRequest("POST", k.URI, bytes.NewBuffer(body))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Can't create HTTP request: %s", err)
 	}
 	req.SetBasicAuth(k.Username, k.Password)
 	response, err := k.Client.Do(req)
-	log.Debugf("Kodi Response : %v %v\n", response, err)
+	log.Debugf("Kodi HTTP Response : %v %v\n", response, err)
 	return response, err
 }
 
 func (k *Client) rpc(method string, params interface{}, response interface{}) error {
+	log.Debugf("RPC: %s %v", method, params)
 	resp, err := k.performRequest(&Request{
 		Jsonrpc: "2.0",
 		Method:  method,
@@ -70,17 +77,21 @@ func (k *Client) rpc(method string, params interface{}, response interface{}) er
 	}
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("Can't read response body: %s", err)
 	}
-	log.Debugf("KODI Json : %v\n", string(b))
+	log.Debugf("KODI Body Response : %v\n", string(b))
 	dec := json.NewDecoder(bytes.NewBuffer(b))
 	err = dec.Decode(response)
 	// log.Debugf("KODI entity : %v\n", response)
-	return err
+	if err != nil {
+		return fmt.Errorf("Can't decode json response: %s", err)
+	}
+	return nil
 }
 
 // Ping make a RPC call to the Ping responsder
 func (k *Client) Ping() (*PingResponse, error) {
+	log.Debugf("Kodi Ping API")
 	resp := &PingResponse{}
 	err := k.rpc("JSONRPC.Ping", nil, resp)
 	return resp, err
@@ -88,6 +99,7 @@ func (k *Client) Ping() (*PingResponse, error) {
 
 // ShowNotification make a RPC call to shows a GUI notification
 func (k *Client) ShowNotification(title string, message string) (*ShowNotificationResponse, error) {
+	log.Debugf("Kodi GUI.ShowNotification API: %s %s", title, message)
 	resp := &ShowNotificationResponse{}
 	params := map[string]interface{}{
 		`title`:   title,
