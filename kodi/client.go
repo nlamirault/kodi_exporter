@@ -79,6 +79,13 @@ func (k *Client) rpc(method string, params interface{}, response interface{}) er
 	return err
 }
 
+// Ping make a RPC call to the Ping responsder
+func (k *Client) Ping() (*PingResponse, error) {
+	resp := &PingResponse{}
+	err := k.rpc("JSONRPC.Ping", nil, resp)
+	return resp, err
+}
+
 // ShowNotification make a RPC call to shows a GUI notification
 func (k *Client) ShowNotification(title string, message string) (*ShowNotificationResponse, error) {
 	resp := &ShowNotificationResponse{}

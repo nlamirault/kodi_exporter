@@ -23,6 +23,12 @@ type ListLimitsReturned struct {
 
 // type Result string
 
+// PingResponse define a response after a Ping RPC call
+type PingResponse struct {
+	ResponseBase
+	Result string `json:"result,omitempty"`
+}
+
 // GUI
 
 // ShowNotificationResponse define a response after a ShowNotification RPC call
