@@ -20,16 +20,34 @@ You can download the binaries :
 
 ## Usage
 
-Test your Kodi API using bash:
+First, test your Kodi API using bash:
 
     $ curl -X POST -H "Content-Type: application/json" \
             -d '{"jsonrpc":"2.0","method":"GUI.ShowNotification","params":{"title":"add you title here","message":"add your message here"},"id":1}'  http://192.168.1.10:8080/jsonrpc
     {"id":1,"jsonrpc":"2.0","result":"OK"}
 
-Then launch the Prometheus exporter :
+
+
+Then Launch the Prometheus exporter :
 
     $ kodi_exporter -log.level=debug -kodi.server 192.168.1.10 -kodi.port 8080
 
+
+## Debug
+
+You could try your Kodi API :
+
+* Artists:
+
+        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetArtists","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
+
+* Albums:
+
+        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetAlbums","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
+
+* Songs:
+
+        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetSongs","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
 
 ## Development
 
@@ -65,17 +83,6 @@ See [CONTRIBUTING](CONTRIBUTING.md).
 
 Some Kodi API calls :
 
-* Artists:
-
-        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetArtists","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
-
-* Albums:
-
-        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetAlbums","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
-
-* Songs:
-
-        $ curl': curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"AudioLibrary.GetSongs","params":{},"id":1}'  http://10.10.10.10:8080/jsonrpc
 
 ## License
 
