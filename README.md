@@ -81,8 +81,6 @@ You could try your Kodi API :
 
 See [CONTRIBUTING](CONTRIBUTING.md).
 
-Some Kodi API calls :
-
 
 ## License
 
