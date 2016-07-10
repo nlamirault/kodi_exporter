@@ -2,7 +2,7 @@ ChangeLog
 ==============
 
 
-# Version 0.2.0 (09/07/2016)
+# Version 0.2.0 (10/07/2016)
 
 - Refactoring Kodi client
 - Unit tests
