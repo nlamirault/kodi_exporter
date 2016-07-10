@@ -14,6 +14,12 @@
 
 APP = kodi_exporter
 
+VERSION=$(shell \
+        grep "const Version" version/version.go \
+        |awk -F'=' '{print $$2}' \
+        |sed -e "s/[^0-9.]//g" \
+	|sed -e "s/ //g")
+
 SHELL = /bin/bash
 
 DIR = $(shell pwd)
@@ -24,6 +30,7 @@ GO = go
 GLIDE = glide
 
 GOX = gox -os="linux darwin windows freebsd openbsd netbsd"
+GOX_ARGS = "-output={{.Dir}}-$(VERSION)_{{.OS}}_{{.Arch}}"
 
 BINTRAY_URI = https://api.bintray.com
 BINTRAY_USERNAME = nlamirault
@@ -39,13 +46,7 @@ MAKE_COLOR=\033[33;01m%-20s\033[0m
 MAIN = github.com/nlamirault/kodi_exporter
 SRCS = $(shell git ls-files '*.go' | grep -v '^vendor/')
 PKGS = $(shell glide novendor)
-EXE = $(shell ls kodi_exporter_*)
-
-VERSION=$(shell \
-        grep "const Version" version/version.go \
-        |awk -F'=' '{print $$2}' \
-        |sed -e "s/[^0-9.]//g" \
-	|sed -e "s/ //g")
+EXE = $(shell ls kodi_exporter-${VERSION}_*)
 
 PACKAGE=$(APP)-$(VERSION)
 ARCHIVE=$(PACKAGE).tar
@@ -106,10 +107,10 @@ coverage: ## Launch code coverage
 
 gox: ## Make all binaries
 	@echo -e "$(OK_COLOR)[$(APP)] Create binaries $(NO_COLOR)"
-	$(GOX) github.com/nlamirault/kodi_exporter
+	$(GOX) $(GOX_ARGS) github.com/nlamirault/kodi_exporter
 
 .PHONY: binaries
-binaries: gox ## Upload all binaries
+binaries: ## Upload all binaries
 	@echo -e "$(OK_COLOR)[$(APP)] Upload binaries to Bintray $(NO_COLOR)"
 	for i in $(EXE); do \
 		curl -T $$i \
